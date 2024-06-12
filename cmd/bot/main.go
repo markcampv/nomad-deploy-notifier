@@ -34,12 +34,12 @@ func realMain(args []string) int {
 	stream := stream.NewStream(stream.Config{})
 
 	influxClient := influxdb2.NewClient(influxURL, influxToken)
-	influxBot, err := bot.NewInfluxBot(influxCfg, influxClient)
+	influxWriter, err := bot.NewInfluxWriter(influxCfg, influxClient)
 	if err != nil {
 		panic(err)
 	}
 
-	stream.Subscribe(ctx, influxBot)
+	stream.Subscribe(ctx, influxWriter)
 
 	return 0
 }
