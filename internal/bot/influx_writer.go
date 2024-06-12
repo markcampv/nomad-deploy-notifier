@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/nomad/api"
+	nomadapi "github.com/hashicorp/nomad/api"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
-	"github.com/influxdata/influxdb-client-go/v2/api"
+	influxdbapi "github.com/influxdata/influxdb-client-go/v2/api"
 )
 
 type InfluxConfig struct {
@@ -21,7 +21,7 @@ type InfluxConfig struct {
 type InfluxWriter struct {
 	mu     sync.Mutex
 	client influxdb2.Client
-	write  api.WriteAPI
+	write  influxdbapi.WriteAPI
 	L      hclog.Logger
 }
 
@@ -36,7 +36,7 @@ func NewInfluxWriter(cfg InfluxConfig, client influxdb2.Client) (*InfluxWriter, 
 	return writer, nil
 }
 
-func (w *InfluxWriter) UpsertDeployMsg(deploy api.Deployment) error {
+func (w *InfluxWriter) UpsertDeployMsg(deploy nomadapi.Deployment) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 

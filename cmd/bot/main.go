@@ -8,7 +8,7 @@ import (
 
 	"github.com/drewbailey/nomad-deploy-notifier/internal/bot"
 	"github.com/drewbailey/nomad-deploy-notifier/internal/stream"
-	"github.com/influxdata/influxdb-client-go/v2"
+	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 )
 
 func main() {
@@ -31,7 +31,7 @@ func realMain(args []string) int {
 		Bucket: influxBucket,
 	}
 
-	stream := stream.NewStream(stream.Config{})
+	stream := stream.NewStream()
 
 	influxClient := influxdb2.NewClient(influxURL, influxToken)
 	influxWriter, err := bot.NewInfluxWriter(influxCfg, influxClient)
