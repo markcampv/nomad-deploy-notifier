@@ -8,6 +8,7 @@ import (
 
 	"github.com/drewbailey/nomad-deploy-notifier/internal/bot"
 	"github.com/drewbailey/nomad-deploy-notifier/internal/stream"
+	"github.com/influxdata/influxdb-client-go/v2"
 )
 
 func main() {
@@ -18,28 +19,32 @@ func realMain(args []string) int {
 	ctx, closer := CtxWithInterrupt(context.Background())
 	defer closer()
 
-	token := os.Getenv("SLACK_TOKEN")
-	toChannel := os.Getenv("SLACK_CHANNEL")
+	influxToken := os.Getenv("INFLUXDB_TOKEN")
+	influxURL := os.Getenv("INFLUXDB_URL")
+	influxOrg := os.Getenv("INFLUXDB_ORG")
+	influxBucket := os.Getenv("INFLUXDB_BUCKET")
 
-	slackCfg := bot.Config{
-		Token:   token,
-		Channel: toChannel,
+	influxCfg := bot.InfluxConfig{
+		Token:  influxToken,
+		URL:    influxURL,
+		Org:    influxOrg,
+		Bucket: influxBucket,
 	}
 
 	stream := stream.NewStream(stream.Config{})
 
-	slackBot, err := bot.NewBot(slackCfg)
+	influxClient := influxdb2.NewClient(influxURL, influxToken)
+	influxBot, err := bot.NewInfluxBot(influxCfg, influxClient)
 	if err != nil {
 		panic(err)
 	}
 
-	stream.Subscribe(ctx, slackBot)
+	stream.Subscribe(ctx, influxBot)
 
 	return 0
 }
 
 func CtxWithInterrupt(ctx context.Context) (context.Context, func()) {
-
 	ctx, cancel := context.WithCancel(ctx)
 
 	ch := make(chan os.Signal, 1)
