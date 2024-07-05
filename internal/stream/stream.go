@@ -28,6 +28,7 @@ func (s *Stream) Subscribe(ctx context.Context, influxWriter *bot.InfluxWriter, 
 	topics := map[api.Topic][]string{
 		api.Topic("Deployment"): {"*"},
 		api.Topic("Node"):       {"*"},
+		api.Topic("Job"):        {"*"},
 		// Add more topics as needed
 	}
 
@@ -51,15 +52,11 @@ func (s *Stream) Subscribe(ctx context.Context, influxWriter *bot.InfluxWriter, 
 			}
 
 			for _, e := range event.Events {
-				deployment, err := e.Deployment()
-				if err != nil {
-					s.L.Error("expected deployment", "error", err)
-					continue
-				}
-
 				if influxWriter != nil {
-					if err = influxWriter.UpsertDeployMsg(*deployment); err != nil {
-						s.L.Warn("error decoding payload for InfluxDB", "error", err)
+					if deployment, err := e.Deployment(); err == nil && deployment != nil {
+						if err = influxWriter.UpsertDeployMsg(*deployment); err != nil {
+							s.L.Warn("error decoding payload for InfluxDB", "error", err)
+						}
 					}
 				}
 

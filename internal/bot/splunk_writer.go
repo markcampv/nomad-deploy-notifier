@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -22,7 +23,6 @@ type SplunkClient struct {
 }
 
 func NewSplunkClient(config SplunkConfig) *SplunkClient {
-	// Configure HTTP client with TLS
 	return &SplunkClient{
 		config: config,
 		client: &http.Client{
@@ -72,6 +72,13 @@ func (sc *SplunkClient) SendEvent(event api.Event) error {
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("failed to send event to Splunk: %s", resp.Status)
+	}
+
+	// Extract deployment details for logging
+	if deployment, err := event.Deployment(); err == nil && deployment != nil {
+		log.Printf("✅ Successfully sent event to Splunk at %s for deployment: %s", time.Now().Format(time.RFC3339), deployment.ID)
+	} else {
+		log.Printf("✅ Successfully sent event to Splunk at %s, but deployment information is not available", time.Now().Format(time.RFC3339))
 	}
 
 	return nil
