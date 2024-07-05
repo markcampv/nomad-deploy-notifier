@@ -76,13 +76,13 @@ func (sc *SplunkClient) SendEvent(event api.Event) error {
 
 	// Extract details based on the topic
 	if deployment, err := event.Deployment(); err == nil && deployment != nil {
-		log.Printf("✅ Successfully sent event to Splunk at %s for deployment: %s", time.Now().Format(time.RFC3339), deployment.ID)
+		log.Printf("✅ Successfully sent event to Splunk for deployment: %s", deployment.ID)
 	} else if node, err := event.Node(); err == nil && node != nil {
-		log.Printf("✅ Successfully sent event to Splunk at %s for node: %s", time.Now().Format(time.RFC3339), node.ID)
+		log.Printf("✅ Successfully sent event to Splunk for node: %s", node.ID)
 	} else if job, err := event.Job(); err == nil && job != nil {
-		log.Printf("✅ Successfully sent event to Splunk at %s for job: %s", time.Now().Format(time.RFC3339), job.ID)
+		log.Printf("✅ Successfully sent event to Splunk for job: %s", *job.ID)
 	} else {
-		log.Printf("✅ Successfully sent event to Splunk at %s, but detailed information is not available", time.Now().Format(time.RFC3339))
+		log.Printf("✅ Successfully sent event to Splunk, but detailed information is not available")
 	}
 
 	return nil
