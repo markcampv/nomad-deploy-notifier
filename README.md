@@ -25,9 +25,14 @@ For InfluxDB:
 
 For Splunk:
 - `SPLUNK_HEC_TOKEN`: [Your Splunk HEC token](https://kinneygroup.com/blog/http-event-collector/).
+
+    - export SPLUNK_HEC_TOKEN=1234-5678
+
+  
 - `SPLUNK_HEC_ENDPOINT`: Your Splunk HEC endpoint URL. 
-  - Splunk Cloud Ex: https://prd-p-g0qdhx.splunkcloud.com:8088/services/collector/event
-  - Splunk Enterprise Ex: https://localhost:8088/services/collector/event
+
+  - Splunk Cloud: export SPLUNK_HEC_ENDPOINT=https://prd-p-g0qdhx.splunkcloud.com:8088/services/collector/event
+  - Splunk Enterprise: export SPLUNK_HEC_ENDPOINT=https://localhost:8088/services/collector/event
 
 ## Usage Examples
 
