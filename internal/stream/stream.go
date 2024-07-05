@@ -22,17 +22,15 @@ func NewStream() *Stream {
 	}
 }
 
-func (s *Stream) Subscribe(ctx context.Context, influxWriter *bot.InfluxWriter, splunkClient *bot.SplunkClient) {
+func (s *Stream) Subscribe(ctx context.Context, influxWriter *bot.InfluxWriter, splunkClient *bot.SplunkClient, topicsList []string, jobName string) {
 	events := s.nomad.EventStream()
 
-	topics := map[api.Topic][]string{
-		api.Topic("Deployment"): {"*"},
-		api.Topic("Node"):       {"*"},
-		api.Topic("Job"):        {"*"},
-		// Add more topics as needed
+	topicsMap := make(map[api.Topic][]string)
+	for _, topic := range topicsList {
+		topicsMap[api.Topic(topic)] = []string{"*"}
 	}
 
-	eventCh, err := events.Stream(ctx, topics, 0, &api.QueryOptions{})
+	eventCh, err := events.Stream(ctx, topicsMap, 0, &api.QueryOptions{})
 	if err != nil {
 		s.L.Error("error creating event stream client", "error", err)
 		os.Exit(1)
@@ -54,15 +52,17 @@ func (s *Stream) Subscribe(ctx context.Context, influxWriter *bot.InfluxWriter, 
 			for _, e := range event.Events {
 				// Process events and log only if detailed information is available
 				if deployment, err := e.Deployment(); err == nil && deployment != nil {
-					if influxWriter != nil {
-						if err := influxWriter.UpsertDeployMsg(*deployment); err != nil {
-							s.L.Warn("error decoding payload for InfluxDB", "error", err)
+					if jobName == "" || deployment.JobID == jobName {
+						if influxWriter != nil {
+							if err := influxWriter.UpsertDeployMsg(*deployment); err != nil {
+								s.L.Warn("error decoding payload for InfluxDB", "error", err)
+							}
 						}
-					}
 
-					if splunkClient != nil {
-						if err := splunkClient.SendEvent(e); err != nil {
-							s.L.Warn("error sending event to Splunk", "error", err)
+						if splunkClient != nil {
+							if err := splunkClient.SendEvent(e); err != nil {
+								s.L.Warn("error sending event to Splunk", "error", err)
+							}
 						}
 					}
 				} else if node, err := e.Node(); err == nil && node != nil {
@@ -76,13 +76,15 @@ func (s *Stream) Subscribe(ctx context.Context, influxWriter *bot.InfluxWriter, 
 						}
 					}
 				} else if job, err := e.Job(); err == nil && job != nil {
-					if influxWriter != nil {
-						// Handle job-related InfluxDB logic if needed
-					}
+					if jobName == "" || *job.ID == jobName {
+						if influxWriter != nil {
+							// Handle job-related InfluxDB logic if needed
+						}
 
-					if splunkClient != nil {
-						if err := splunkClient.SendEvent(e); err != nil {
-							s.L.Warn("error sending event to Splunk", "error", err)
+						if splunkClient != nil {
+							if err := splunkClient.SendEvent(e); err != nil {
+								s.L.Warn("error sending event to Splunk", "error", err)
+							}
 						}
 					}
 				}

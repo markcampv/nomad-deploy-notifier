@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/drewbailey/nomad-deploy-notifier/internal/bot"
@@ -16,11 +17,15 @@ import (
 var (
 	useInfluxDB bool
 	useSplunk   bool
+	topics      string
+	jobName     string
 )
 
 func init() {
 	flag.BoolVar(&useInfluxDB, "influxdb", false, "Send data to InfluxDB")
 	flag.BoolVar(&useSplunk, "splunk", false, "Send data to Splunk HEC")
+	flag.StringVar(&topics, "topics", "Deployment,Node,Job", "Comma-separated list of topics to send to Splunk")
+	flag.StringVar(&jobName, "job_name", "", "Name of the job to filter events")
 }
 
 func main() {
@@ -74,9 +79,11 @@ func realMain(args []string) int {
 		splunkClient = bot.NewSplunkClient(splunkCfg)
 	}
 
+	topicsList := strings.Split(topics, ",")
+
 	stream := stream.NewStream()
 
-	stream.Subscribe(ctx, influxWriter, splunkClient)
+	stream.Subscribe(ctx, influxWriter, splunkClient, topicsList, jobName)
 
 	return 0
 }
