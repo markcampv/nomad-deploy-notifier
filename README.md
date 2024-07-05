@@ -1,2 +1,2 @@
 # nomad-deploy-notifier
-send nomad deployment messages to influx db
+send nomad deployment messages to influx db and splunk
