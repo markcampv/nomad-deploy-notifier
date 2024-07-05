@@ -51,9 +51,22 @@ func (s *Stream) Subscribe(ctx context.Context, influxWriter *bot.InfluxWriter, 
 			}
 
 			for _, e := range event.Events {
-				// Handle InfluxDB writing if needed
-				if err = splunkClient.SendEvent(e); err != nil {
-					s.L.Warn("error sending event to Splunk", "error", err)
+				deployment, err := e.Deployment()
+				if err != nil {
+					s.L.Error("expected deployment", "error", err)
+					continue
+				}
+
+				if influxWriter != nil {
+					if err = influxWriter.UpsertDeployMsg(*deployment); err != nil {
+						s.L.Warn("error decoding payload for InfluxDB", "error", err)
+					}
+				}
+
+				if splunkClient != nil {
+					if err = splunkClient.SendEvent(e); err != nil {
+						s.L.Warn("error sending event to Splunk", "error", err)
+					}
 				}
 			}
 		}
