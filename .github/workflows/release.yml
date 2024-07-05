@@ -4,9 +4,8 @@ on:
   push:
     tags:
       - 'v*'
-    pull_request:
-      branches:
-        - main
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -59,8 +58,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref_name }}
+          tag_name: ${{ env.TAG_NAME }}
+          release_name: Release ${{ env.TAG_NAME }}
           draft: false
           prerelease: false
 
@@ -96,4 +95,3 @@ jobs:
           asset_path: ./nomad-deploy-notifier_${{ env.TAG_NAME }}_windows_amd64.zip
           asset_name: nomad-deploy-notifier_${{ env.TAG_NAME }}_windows_amd64.zip
           asset_content_type: application/zip
-
