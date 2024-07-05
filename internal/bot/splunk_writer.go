@@ -2,11 +2,13 @@ package bot
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/nomad/api"
 	"net/http"
 	"time"
+
+	"github.com/hashicorp/nomad/api"
 )
 
 type SplunkConfig struct {
@@ -20,10 +22,14 @@ type SplunkClient struct {
 }
 
 func NewSplunkClient(config SplunkConfig) *SplunkClient {
+	// Configure HTTP client with TLS
 	return &SplunkClient{
 		config: config,
 		client: &http.Client{
 			Timeout: 10 * time.Second,
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // Use InsecureSkipVerify for trial purposes; for production, you should properly verify the server certificate
+			},
 		},
 	}
 }
