@@ -31,19 +31,25 @@ jobs:
       # Build for Linux
       - name: Build Binary for Linux
         run: |
-          GOOS=linux GOARCH=amd64 go build -o nomad-deploy-notifier
+          cd cmd/bot  # Change to the directory containing main.go
+          GOOS=linux GOARCH=amd64 go build -o ../../nomad-deploy-notifier
+          cd ../../  # Change back to the root directory
           zip nomad-deploy-notifier_${{ env.TAG_NAME }}_linux_amd64.zip nomad-deploy-notifier
 
       # Build for macOS
       - name: Build Binary for macOS
         run: |
-          GOOS=darwin GOARCH=amd64 go build -o nomad-deploy-notifier
+          cd cmd/bot  # Change to the directory containing main.go
+          GOOS=darwin GOARCH=amd64 go build -o ../../nomad-deploy-notifier
+          cd ../../  # Change back to the root directory
           zip nomad-deploy-notifier_${{ env.TAG_NAME }}_darwin_amd64.zip nomad-deploy-notifier
 
       # Build for Windows
       - name: Build Binary for Windows
         run: |
-          GOOS=windows GOARCH=amd64 go build -o nomad-deploy-notifier.exe
+          cd cmd/bot  # Change to the directory containing main.go
+          GOOS=windows GOARCH=amd64 go build -o ../../nomad-deploy-notifier.exe
+          cd ../../  # Change back to the root directory
           zip nomad-deploy-notifier_${{ env.TAG_NAME }}_windows_amd64.zip nomad-deploy-notifier.exe
 
       # Create GitHub Release
