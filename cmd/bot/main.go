@@ -79,7 +79,10 @@ func realMain(args []string) int {
 		splunkClient = bot.NewSplunkClient(splunkCfg)
 	}
 
-	topicsList := strings.Split(topics, ",")
+	topicsList := strings.Split(strings.ToLower(topics), ",")
+	for i := range topicsList {
+		topicsList[i] = strings.Title(strings.TrimSpace(topicsList[i]))
+	}
 
 	stream := stream.NewStream()
 
