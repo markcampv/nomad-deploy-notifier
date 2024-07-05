@@ -6,30 +6,32 @@ import (
 
 	"github.com/drewbailey/nomad-deploy-notifier/internal/bot"
 	"github.com/hashicorp/go-hclog"
-	nomadapi "github.com/hashicorp/nomad/api"
+	"github.com/hashicorp/nomad/api"
 )
 
 type Stream struct {
-	nomad *nomadapi.Client
+	nomad *api.Client
 	L     hclog.Logger
 }
 
 func NewStream() *Stream {
-	client, _ := nomadapi.NewClient(&nomadapi.Config{})
+	client, _ := api.NewClient(&api.Config{})
 	return &Stream{
 		nomad: client,
 		L:     hclog.Default(),
 	}
 }
 
-func (s *Stream) Subscribe(ctx context.Context, influxWriter *bot.InfluxWriter) {
+func (s *Stream) Subscribe(ctx context.Context, influxWriter *bot.InfluxWriter, splunkClient *bot.SplunkClient) {
 	events := s.nomad.EventStream()
 
-	topics := map[nomadapi.Topic][]string{
-		nomadapi.Topic("Deployment"): {"*"},
+	topics := map[api.Topic][]string{
+		api.Topic("Deployment"): {"*"},
+		api.Topic("Node"):       {"*"},
+		// Add more topics as needed
 	}
 
-	eventCh, err := events.Stream(ctx, topics, 0, &nomadapi.QueryOptions{})
+	eventCh, err := events.Stream(ctx, topics, 0, &api.QueryOptions{})
 	if err != nil {
 		s.L.Error("error creating event stream client", "error", err)
 		os.Exit(1)
@@ -49,15 +51,9 @@ func (s *Stream) Subscribe(ctx context.Context, influxWriter *bot.InfluxWriter) 
 			}
 
 			for _, e := range event.Events {
-				deployment, err := e.Deployment()
-				if err != nil {
-					s.L.Error("expected deployment", "error", err)
-					continue
-				}
-
-				if err = influxWriter.UpsertDeployMsg(*deployment); err != nil {
-					s.L.Warn("error decoding payload", "error", err)
-					return
+				// Handle InfluxDB writing if needed
+				if err = splunkClient.SendEvent(e); err != nil {
+					s.L.Warn("error sending event to Splunk", "error", err)
 				}
 			}
 		}
