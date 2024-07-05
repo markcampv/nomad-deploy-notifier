@@ -46,7 +46,7 @@ For Splunk:
 
 You can download pre-built binaries of Nomad Deploy Notifier directly from our GitHub [Releases](https://github.com/markcampv/nomad-deploy-notifier/releases) page. This allows you to install the tool without needing to compile it from the source.
 
-1. **Go to the Releases Page**: Navigate to [Releases](https://github.com/markcampv/nomad-deploy-notifier/releases) in the Debug Redactor repository.
+1. **Go to the Releases Page**: Navigate to [Releases](https://github.com/markcampv/nomad-deploy-notifier/releases) in the Nomad Deploy Notifier repository.
 
 2. **Download the Binary**: Download the appropriate binary for your operating system and architecture. We provide binaries for Windows, macOS, and Linux.
 
