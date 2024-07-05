@@ -14,6 +14,8 @@ jobs:
   build-and-release:
     name: Build Binaries and Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Ensure the job has write permissions for contents
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -95,3 +97,4 @@ jobs:
           asset_path: ./nomad-deploy-notifier_${{ env.TAG_NAME }}_windows_amd64.zip
           asset_name: nomad-deploy-notifier_${{ env.TAG_NAME }}_windows_amd64.zip
           asset_content_type: application/zip
+
