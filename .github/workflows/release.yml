@@ -96,3 +96,4 @@ jobs:
           asset_path: ./nomad-deploy-notifier_${{ env.TAG_NAME }}_windows_amd64.zip
           asset_name: nomad-deploy-notifier_${{ env.TAG_NAME }}_windows_amd64.zip
           asset_content_type: application/zip
+
