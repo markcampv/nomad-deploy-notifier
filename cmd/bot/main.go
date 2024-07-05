@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,7 +13,24 @@ import (
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 )
 
+var (
+	useInfluxDB bool
+	useSplunk   bool
+)
+
+func init() {
+	flag.BoolVar(&useInfluxDB, "influxdb", false, "Send data to InfluxDB")
+	flag.BoolVar(&useSplunk, "splunk", false, "Send data to Splunk HEC")
+}
+
 func main() {
+	flag.Parse()
+
+	if !useInfluxDB && !useSplunk {
+		fmt.Println("Please specify at least one output using the -influxdb or -splunk flags")
+		os.Exit(1)
+	}
+
 	os.Exit(realMain(os.Args))
 }
 
@@ -19,27 +38,45 @@ func realMain(args []string) int {
 	ctx, closer := CtxWithInterrupt(context.Background())
 	defer closer()
 
-	influxToken := os.Getenv("INFLUXDB_TOKEN")
-	influxURL := os.Getenv("INFLUXDB_URL")
-	influxOrg := os.Getenv("INFLUXDB_ORG")
-	influxBucket := os.Getenv("INFLUXDB_BUCKET")
+	var influxWriter *bot.InfluxWriter
+	var splunkClient *bot.SplunkClient
 
-	influxCfg := bot.InfluxConfig{
-		Token:  influxToken,
-		URL:    influxURL,
-		Org:    influxOrg,
-		Bucket: influxBucket,
+	if useInfluxDB {
+		influxToken := os.Getenv("INFLUXDB_TOKEN")
+		influxURL := os.Getenv("INFLUXDB_URL")
+		influxOrg := os.Getenv("INFLUXDB_ORG")
+		influxBucket := os.Getenv("INFLUXDB_BUCKET")
+
+		influxCfg := bot.InfluxConfig{
+			Token:  influxToken,
+			URL:    influxURL,
+			Org:    influxOrg,
+			Bucket: influxBucket,
+		}
+
+		influxClient := influxdb2.NewClient(influxURL, influxToken)
+		var err error
+		influxWriter, err = bot.NewInfluxWriter(influxCfg, influxClient)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if useSplunk {
+		splunkToken := os.Getenv("SPLUNK_HEC_TOKEN")
+		splunkEndpoint := os.Getenv("SPLUNK_HEC_ENDPOINT")
+
+		splunkCfg := bot.SplunkConfig{
+			Token:    splunkToken,
+			Endpoint: splunkEndpoint,
+		}
+
+		splunkClient = bot.NewSplunkClient(splunkCfg)
 	}
 
 	stream := stream.NewStream()
 
-	influxClient := influxdb2.NewClient(influxURL, influxToken)
-	influxWriter, err := bot.NewInfluxWriter(influxCfg, influxClient)
-	if err != nil {
-		panic(err)
-	}
-
-	stream.Subscribe(ctx, influxWriter)
+	stream.Subscribe(ctx, influxWriter, splunkClient)
 
 	return 0
 }
