@@ -44,20 +44,20 @@ For Splunk:
 
 ### Installation
 
-You can download pre-built binaries of Debug Redactor directly from our GitHub [Releases](https://github.com/markcampv/debug-redactor/releases) page. This allows you to install the tool without needing to compile it from the source.
+You can download pre-built binaries of Debug Redactor directly from our GitHub [Releases](https://github.com/markcampv/nomad-deploy-notifier/releases) page. This allows you to install the tool without needing to compile it from the source.
 
-1. **Go to the Releases Page**: Navigate to [Releases](https://github.com/markcampv/debug-redactor/releases) in the Debug Redactor repository.
+1. **Go to the Releases Page**: Navigate to [Releases](https://github.com/markcampv/nomad-deploy-notifier/releases) in the Debug Redactor repository.
 
 2. **Download the Binary**: Download the appropriate binary for your operating system and architecture. We provide binaries for Windows, macOS, and Linux.
 
-    - For Linux: `debug-redactor-linux-amd64.zip`
-    - For macOS: `debug-redactor-darwin-amd64.zip`
-    - For Windows: `debug-redactor-windows-amd64.zip`
+    - For Linux: `nomad-deploy-notifier-linux-amd64.zip`
+    - For macOS: `nomad-deploy-notifier-darwin-amd64.zip`
+    - For Windows: `nomad-deploy-notifier-windows-amd64.zip`
 
 3. **Make the Binary Executable** (Linux and macOS):
 
    After downloading, you may need to make the binary executable. On Linux and macOS, you can do this with the following command:
 
 ```sh
-   chmod +x debug-redactor 
+   chmod +x nomad-deploy-notifier 
 
